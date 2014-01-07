@@ -12,7 +12,7 @@ type Db interface {
 	Execute(action.A) (interface{}, error)
 }
 
-type ActionExecutor interface {
+type Executor interface {
 	ExecuteWith(action.A) (interface{}, error)
 }
 
@@ -68,5 +68,5 @@ func (c *database) Execute(A action.A) (interface{}, error) {
 	}
 
 	fv := reflect.ValueOf(c).Elem().FieldByName(reflect.ValueOf(A).Type().Name())
-	return fv.Interface().(ActionExecutor).ExecuteWith(A)
+	return fv.Interface().(Executor).ExecuteWith(A)
 }
