@@ -11,6 +11,8 @@ func TestUnitSpecs(t *testing.T) {
 	r.AddSpec(DescribeUpdateStmtResult)
 	r.AddSpec(DescribeMockStmt)
 
+	r.AddSpec(DescribeExecutorRegistry)
+
 	gospec.MainGoTest(r, t)
 }
 

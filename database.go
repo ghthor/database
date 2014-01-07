@@ -39,6 +39,11 @@ type mymysqlConn interface {
 	Begin() (mysql.Transaction, error)
 }
 
+type DatabaseConn interface {
+	MysqlConn() mymysqlConn
+	Filepath() string
+}
+
 type database struct {
 	mymysqlConn
 
