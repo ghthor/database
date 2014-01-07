@@ -1,0 +1,6 @@
+{
+    "username": "dbuser",
+    "password": "dbpassword",
+    "defaultDB": "dbname",
+    "fileSystemDB": "filepath/to/filedb"
+}
