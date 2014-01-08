@@ -32,7 +32,7 @@ func New(user, passwd, database, filepath string) (Db, error) {
 }
 
 // A Subset of the mysql.Conn interface to specify exactly what functionality we use
-type mymysqlConn interface {
+type MymysqlConn interface {
 	Connect() error
 
 	Prepare(string) (mysql.Stmt, error)
@@ -40,20 +40,20 @@ type mymysqlConn interface {
 }
 
 type DatabaseConn interface {
-	MysqlConn() mymysqlConn
+	MysqlConn() MymysqlConn
 	Filepath() string
 }
 
 type database struct {
-	mymysqlConn
+	MymysqlConn
 
 	filepath   string
 	fileServer http.Handler
 }
 
-func newDatabase(conn mymysqlConn, filepath string) (*database, error) {
+func newDatabase(conn MymysqlConn, filepath string) (*database, error) {
 	db := &database{
-		mymysqlConn: conn,
+		MymysqlConn: conn,
 
 		filepath:   filepath,
 		fileServer: http.FileServer(http.Dir(filepath)),

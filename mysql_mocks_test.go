@@ -85,7 +85,7 @@ func (r *MockResult) GetLastRow() (mysql.Row, error)  { return nil, nil }
 
 func DescribeMockMysqlConn(c gospec.Context) {
 	// Compile time Verify interface implementation
-	var _ mymysqlConn = &MockMysqlConn{}
+	var _ MymysqlConn = &MockMysqlConn{}
 
 	c.Specify("a mock sql conn", func() {
 		conn := &MockMysqlConn{}
