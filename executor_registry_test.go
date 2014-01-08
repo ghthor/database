@@ -2,9 +2,9 @@ package database
 
 import (
 	"errors"
+	"github.com/ghthor/database/action"
 	"github.com/ghthor/gospec"
 	. "github.com/ghthor/gospec"
-	"github.com/ghthor/database/action"
 	"reflect"
 )
 
