@@ -23,7 +23,12 @@ func New(user, passwd, database, filepath string) (Db, error) {
 		return nil, err
 	}
 
-	db, err := newDatabase(conn, filepath)
+	mysqlDb, err := NewMysqlDatabase(database, conn)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := NewDatabase(mysqlDb, filepath)
 	if err != nil {
 		return nil, err
 	}
@@ -44,16 +49,16 @@ type DatabaseConn interface {
 	Filepath() string
 }
 
-type database struct {
-	MymysqlConn
+type Database struct {
+	mysqlDb *MysqlDatabase
 
 	filepath   string
 	fileServer http.Handler
 }
 
-func newDatabase(conn MymysqlConn, filepath string) (*database, error) {
-	db := &database{
-		MymysqlConn: conn,
+func NewDatabase(mysqlDb *MysqlDatabase, filepath string) (*Database, error) {
+	db := &Database{
+		mysqlDb: mysqlDb,
 
 		filepath:   filepath,
 		fileServer: http.FileServer(http.Dir(filepath)),
@@ -62,11 +67,13 @@ func newDatabase(conn MymysqlConn, filepath string) (*database, error) {
 	return db, db.PrepareActions()
 }
 
-func (c *database) PrepareActions() (err error) {
+func (c *Database) MysqlDatabase() *MysqlDatabase { return c.mysqlDb }
+
+func (c *Database) PrepareActions() (err error) {
 	return
 }
 
-func (c *database) Execute(A action.A) (interface{}, error) {
+func (c *Database) Execute(A action.A) (interface{}, error) {
 	err := A.IsValid()
 	if err != nil {
 		return nil, err
