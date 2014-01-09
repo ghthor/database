@@ -34,6 +34,10 @@ func (r *ExecutorRegistry) Register(a action.A, e NewExecutor) error {
 	return nil
 }
 
+func RegisterAction(a action.A, e NewExecutor) error {
+	return executorRegistry.Register(a, e)
+}
+
 func (r *ExecutorRegistry) Lookup(a action.A) NewExecutor {
 	typename := reflect.TypeOf(a).String()
 	return r.executors[typename]
