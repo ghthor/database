@@ -27,6 +27,19 @@ func (t *MysqlDatabase) Drop() error {
 	return err
 }
 
+func checkIfDatabaseExists(c mysql.Conn, db string) (bool, error) {
+	row, _, err := c.QueryFirst("select schema_name from information_schema.schemata where schema_name = '%s'", db)
+	if err != nil {
+		return false, err
+	}
+
+	return len(row) != 0, nil
+}
+
+func (t *MysqlDatabase) Exists() (bool, error) {
+	return checkIfDatabaseExists(t, t.name)
+}
+
 func (t *MysqlDatabase) SetSchema(schema string) error {
 	if t.schema != "" {
 		return errors.New("schema already set")

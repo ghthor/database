@@ -7,15 +7,6 @@ import (
 	"io/ioutil"
 )
 
-func checkIfDatabaseExists(c mysql.Conn, db string) (bool, error) {
-	row, _, err := c.QueryFirst("select schema_name from information_schema.schemata where schema_name = '%s'", db)
-	if err != nil {
-		return false, err
-	}
-
-	return len(row) != 0, nil
-}
-
 func DescribeMysqlDatabaseIntegration(c gospec.Context) {
 	// Create a Connection and Connect
 	conn := mysql.New("tcp", "", "127.0.0.1:3306", cfg.Username, cfg.Password)
