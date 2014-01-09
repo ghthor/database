@@ -5,6 +5,7 @@ import (
 	"github.com/ghthor/gospec"
 	. "github.com/ghthor/gospec"
 	"github.com/ziutek/mymysql/mysql"
+	"io/ioutil"
 	"log"
 )
 
@@ -63,6 +64,28 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 			dbExists, err = checkIfDatabaseExists(conn, db.name)
 			c.Assume(err, IsNil)
 			c.Expect(dbExists, IsFalse)
+		})
+
+		c.Specify("can have a schema", func() {
+			db, err := NewTestDatabase("test-database", conn)
+			c.Assume(err, IsNil)
+
+			c.Assume(db.Create(), IsNil)
+			defer func() {
+				c.Assume(db.Drop(), IsNil)
+			}()
+
+			schemaBytes, err := ioutil.ReadFile("test_schema.sql")
+			c.Assume(err, IsNil)
+
+			c.Assume(db.SetSchema(string(schemaBytes)), IsNil)
+
+			_, err = db.Prepare("insert into test (name) values (?)")
+			c.Expect(err, IsNil)
+
+			c.Specify("that can only be set once", func() {
+				c.Assume(db.SetSchema(""), Not(IsNil))
+			})
 		})
 
 		c.Specify("generates a unique database name everytime", func() {

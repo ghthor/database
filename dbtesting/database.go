@@ -3,13 +3,15 @@ package dbtesting
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"github.com/ziutek/mymysql/mysql"
 	_ "github.com/ziutek/mymysql/thrsafe"
 )
 
 type TestDatabase struct {
 	mysql.Conn
-	name string
+	name   string
+	schema string
 }
 
 func (t *TestDatabase) Create() error {
@@ -23,6 +25,27 @@ func (t *TestDatabase) Create() error {
 func (t *TestDatabase) Drop() error {
 	_, _, err := t.Conn.Query("drop database `%s`", t.name)
 	return err
+}
+
+func (t *TestDatabase) SetSchema(schema string) error {
+	if t.schema != "" {
+		return errors.New("schema already set")
+	}
+
+	res, err := t.Start(string(schema))
+	if err != nil {
+		return err
+	}
+
+	// Must read all results to unlock mysql.Conn for next queries
+	for res.MoreResults() {
+		if res, err = res.NextResult(); err != nil {
+			return err
+		}
+	}
+
+	t.schema = schema
+	return nil
 }
 
 func genSuffix() (string, error) {
@@ -41,7 +64,7 @@ func newTestDatabase(basename string, c mysql.Conn, genSuffix func() (string, er
 		return nil, err
 	}
 
-	return &TestDatabase{c, basename + "_" + suffix}, nil
+	return &TestDatabase{c, basename + "_" + suffix, ""}, nil
 }
 
 func NewTestDatabase(basename string, c mysql.Conn) (*TestDatabase, error) {
