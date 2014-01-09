@@ -14,7 +14,5 @@ func TestUnitSpecs(t *testing.T) {
 func TestIntegrationSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 
-	r.AddSpec(DescribeDatabaseIntegration)
-
 	gospec.MainGoTest(r, t)
 }
