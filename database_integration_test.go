@@ -42,17 +42,17 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 			c.Specify("and is in use", func() {
 				row, _, err := conn.QueryFirst("select DATABASE()")
 				c.Assume(err, IsNil)
-				c.Expect(row.Str(0), Equals, db.Name)
+				c.Expect(row.Str(0), Equals, db.name)
 			})
 
-			dbExists, err := checkIfDatabaseExists(conn, db.Name)
+			dbExists, err := checkIfDatabaseExists(conn, db.name)
 			c.Assume(err, IsNil)
 			c.Expect(dbExists, IsTrue)
 
 			err = db.Drop()
 			c.Expect(err, IsNil)
 
-			dbExists, err = checkIfDatabaseExists(conn, db.Name)
+			dbExists, err = checkIfDatabaseExists(conn, db.name)
 			c.Assume(err, IsNil)
 			c.Expect(dbExists, IsFalse)
 		})
@@ -87,7 +87,7 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 			db2, err := NewMysqlDatabase(basename, conn)
 			c.Assume(err, IsNil)
 
-			c.Expect(db1.Name, Not(Equals), db2.Name)
+			c.Expect(db1.name, Not(Equals), db2.name)
 		})
 
 		c.Specify("fails to create the database if a database using the name already exists", func() {
