@@ -8,6 +8,8 @@ import (
 func TestUnitSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 
+	r.AddSpec(DescribeSpecifyExecutor)
+
 	gospec.MainGoTest(r, t)
 }
 
