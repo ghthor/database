@@ -69,6 +69,8 @@ func NewDatabase(mysqlDb *MysqlDatabase, filepath string) (*Database, error) {
 
 func (c *Database) MysqlDatabase() *MysqlDatabase { return c.mysqlDb }
 
+func (c *Database) Filepath() string { return c.filepath }
+
 func (c *Database) PrepareActions() (err error) {
 	return
 }
