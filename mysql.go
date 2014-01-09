@@ -10,20 +10,20 @@ import (
 
 type MysqlDatabase struct {
 	mysql.Conn
-	name   string
+	Name   string
 	schema string
 }
 
 func (t *MysqlDatabase) Create() error {
-	_, _, err := t.Conn.Query("CREATE DATABASE `%s` DEFAULT COLLATE = 'utf8_general_ci'", t.name)
+	_, _, err := t.Conn.Query("CREATE DATABASE `%s` DEFAULT COLLATE = 'utf8_general_ci'", t.Name)
 	if err != nil {
 		return err
 	}
-	return t.Use(t.name)
+	return t.Use(t.Name)
 }
 
 func (t *MysqlDatabase) Drop() error {
-	_, _, err := t.Conn.Query("drop database `%s`", t.name)
+	_, _, err := t.Conn.Query("drop database `%s`", t.Name)
 	return err
 }
 
