@@ -12,6 +12,8 @@ func TestUnitSpecs(t *testing.T) {
 	r.AddSpec(DescribeMockMysqlConn)
 	r.AddSpec(DescribeMockStmt)
 
+	r.AddSpec(DescribeTransaction)
+
 	r.AddSpec(DescribeExecutorRegistry)
 
 	gospec.MainGoTest(r, t)

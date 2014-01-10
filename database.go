@@ -47,6 +47,7 @@ type MymysqlConn interface {
 type DatabaseConn interface {
 	MysqlConn() MymysqlConn
 	Filepath() string
+	Begin() (Transaction, error)
 }
 
 type Database struct {
@@ -69,6 +70,13 @@ func NewDatabase(mysqlDb *MysqlDatabase, filepath string) (*Database, error) {
 
 func (c *Database) MysqlConn() MymysqlConn { return c.mysqlDb }
 func (c *Database) Filepath() string       { return c.filepath }
+func (c *Database) Begin() (Transaction, error) {
+	tx, err := c.MysqlConn().Begin()
+	if err != nil {
+		return nil, err
+	}
+	return newTransaction(tx, c.filepath), nil
+}
 
 func (c *Database) MysqlDatabase() *MysqlDatabase { return c.mysqlDb }
 
