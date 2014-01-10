@@ -9,6 +9,7 @@ func TestUnitSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 
 	r.AddSpec(DescribeUpdateStmtResult)
+	r.AddSpec(DescribeMockMysqlConn)
 	r.AddSpec(DescribeMockStmt)
 
 	r.AddSpec(DescribeExecutorRegistry)
