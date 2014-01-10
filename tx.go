@@ -54,7 +54,8 @@ func (t *transaction) Rollback() error {
 }
 
 func (t *transaction) Run(s mysql.Stmt, params ...interface{}) (mysql.Result, error) {
-	res, err := t.tx.Do(s).Run(params)
+	// TODO: Specify params... with an Integration Test
+	res, err := t.tx.Do(s).Run(params...)
 	if err != nil {
 		rollbackErr := t.Rollback()
 		if rollbackErr != nil {
