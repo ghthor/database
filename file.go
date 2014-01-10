@@ -35,8 +35,8 @@ func saveFiles(files []datatype.FormFile, dir string) (sha1Names []string, err e
 	return
 }
 
-func saveFile(image datatype.FormFile, dir string) (sha1Name string, err error) {
-	file, header := image.File, image.Header
+func saveFile(formFile datatype.FormFile, dir string) (sha1Name string, err error) {
+	file, header := formFile.File, formFile.Header
 
 	h := sha1.New()
 	_, err = io.Copy(h, file)
