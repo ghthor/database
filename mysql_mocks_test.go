@@ -9,6 +9,9 @@ import (
 type MockMysqlConn struct {
 	PrepareWasCalled bool
 	PrepareFunc      func(string) (mysql.Stmt, error)
+
+	BeginWasCalled bool
+	BeginFunc      func() (mysql.Transaction, error)
 }
 
 func (c *MockMysqlConn) Connect() error { return nil }
@@ -19,7 +22,13 @@ func (c *MockMysqlConn) Prepare(sql string) (mysql.Stmt, error) {
 	}
 	return nil, nil
 }
-func (c *MockMysqlConn) Begin() (mysql.Transaction, error) { return nil, nil }
+func (c *MockMysqlConn) Begin() (mysql.Transaction, error) {
+	c.BeginWasCalled = true
+	if c.BeginFunc != nil {
+		return c.BeginFunc()
+	}
+	return nil, nil
+}
 
 type MockStmt struct {
 	RunWasCalled bool
@@ -103,6 +112,18 @@ func DescribeMockMysqlConn(c gospec.Context) {
 
 			conn.Prepare("an sql statement")
 			c.Expect(argument, Equals, "an sql statement")
+		})
+
+		c.Specify("can fake the Begin implementation", func() {
+			funcWasCalled := false
+			conn.BeginFunc = func() (mysql.Transaction, error) {
+				funcWasCalled = true
+				return nil, nil
+			}
+
+			_, err := conn.Begin()
+			c.Assume(err, IsNil)
+			c.Expect(funcWasCalled, IsTrue)
 		})
 	})
 }
