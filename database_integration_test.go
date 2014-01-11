@@ -33,7 +33,7 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 		c.Specify("can be created and dropped", func() {
 			basename := "test-database"
 
-			db, err := NewMysqlDatabase(basename, conn)
+			db, err := NewUniqMysqlDatabase(basename, conn)
 			c.Assume(err, IsNil)
 
 			err = db.Create()
@@ -57,17 +57,17 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 			c.Expect(dbExists, IsFalse)
 		})
 
+		schemaBytes, err := ioutil.ReadFile("dbtesting/test_schema.sql")
+		c.Assume(err, IsNil)
+
 		c.Specify("can have a schema", func() {
-			db, err := NewMysqlDatabase("test-database", conn)
+			db, err := NewUniqMysqlDatabase("test-database", conn)
 			c.Assume(err, IsNil)
 
 			c.Assume(db.Create(), IsNil)
 			defer func() {
 				c.Assume(db.Drop(), IsNil)
 			}()
-
-			schemaBytes, err := ioutil.ReadFile("dbtesting/test_schema.sql")
-			c.Assume(err, IsNil)
 
 			c.Assume(db.SetSchema(string(schemaBytes)), IsNil)
 
@@ -79,12 +79,49 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 			})
 		})
 
-		c.Specify("generates a unique database name everytime", func() {
-			basename := "unique-name-test"
-			db1, err := NewMysqlDatabase(basename, conn)
+		c.Specify("will use the existing database", func() {
+			db, err := NewUniqMysqlDatabase("test-database", conn)
 			c.Assume(err, IsNil)
 
-			db2, err := NewMysqlDatabase(basename, conn)
+			c.Assume(db.Create(), IsNil)
+			defer func() {
+				c.Assume(db.Drop(), Not(IsNil))
+			}()
+
+			c.Assume(db.SetSchema(string(schemaBytes)), IsNil)
+
+			conn2 := mysql.New("tcp", "", "127.0.0.1:3306", cfg.Username, cfg.Password)
+			c.Assume(conn2.Connect(), IsNil)
+
+			defer func() {
+				err := conn2.Close()
+				c.Assume(err, IsNil)
+			}()
+
+			dbReused, err := NewMysqlDatabase(db.name, conn2)
+			c.Assume(err, IsNil)
+
+			defer func() {
+				err := dbReused.Drop()
+				c.Assume(err, IsNil)
+			}()
+
+			c.Expect(dbReused.Create(), Not(IsNil))
+			row, _, err := conn2.QueryFirst("select DATABASE()")
+			c.Assume(err, IsNil)
+			c.Expect(row.Str(0), Equals, dbReused.name)
+
+			c.Specify("and cannot set schema", func() {
+				c.Expect(dbReused.SetSchema(string(schemaBytes)), Not(IsNil))
+			})
+		})
+
+		c.Specify("can have a unique name", func() {
+			basename := "unique-name-test"
+			db1, err := NewUniqMysqlDatabase(basename, conn)
+			c.Assume(err, IsNil)
+
+			db2, err := NewUniqMysqlDatabase(basename, conn)
 			c.Assume(err, IsNil)
 
 			c.Expect(db1.name, Not(Equals), db2.name)
@@ -110,7 +147,7 @@ func DescribeDatabaseIntegration(c gospec.Context) {
 	})
 
 	c.Specify("an update statement", func() {
-		db, err := NewMysqlDatabase("update-statement", conn)
+		db, err := NewUniqMysqlDatabase("update-statement", conn)
 		c.Assume(err, IsNil)
 
 		err = db.Create()

@@ -61,6 +61,11 @@ func (t *MysqlDatabase) SetSchema(schema string) error {
 	return nil
 }
 
+func (t *MysqlDatabase) GenerateSchema() error {
+	t.schema = "TODO: Generate the Scheme from the database that is in use"
+	return nil
+}
+
 func genSuffix() (string, error) {
 	suffix := make([]byte, 16)
 	n, err := rand.Read(suffix)
@@ -72,14 +77,40 @@ func genSuffix() (string, error) {
 }
 
 func newMysqlDatabase(basename string, c mysql.Conn, genSuffix func() (string, error)) (*MysqlDatabase, error) {
-	suffix, err := genSuffix()
+	if genSuffix != nil {
+		suffix, err := genSuffix()
+		if err != nil {
+			return nil, err
+		}
+		return &MysqlDatabase{c, basename + "_" + suffix, ""}, nil
+	}
+
+	mysqlDb := &MysqlDatabase{c, basename, ""}
+
+	exists, err := mysqlDb.Exists()
 	if err != nil {
 		return nil, err
 	}
 
-	return &MysqlDatabase{c, basename + "_" + suffix, ""}, nil
+	if exists {
+		err := mysqlDb.GenerateSchema()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = c.Use(mysqlDb.name)
+	if err != nil {
+		return nil, err
+	}
+
+	return mysqlDb, nil
 }
 
 func NewMysqlDatabase(basename string, c mysql.Conn) (*MysqlDatabase, error) {
+	return newMysqlDatabase(basename, c, nil)
+}
+
+func NewUniqMysqlDatabase(basename string, c mysql.Conn) (*MysqlDatabase, error) {
 	return newMysqlDatabase(basename, c, genSuffix)
 }
