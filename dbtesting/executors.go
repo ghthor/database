@@ -62,7 +62,7 @@ func DescribeExecutor(c gospec.Context, input action.A, e ExecutorDescription, c
 		c.Assume(err, IsNil)
 	}()
 
-	testDb, err := database.NewMysqlDatabase(cfg.DefaultDB, conn)
+	testDb, err := database.NewUniqMysqlDatabase(cfg.DefaultDB, conn)
 	c.Assume(err, IsNil)
 
 	err = testDb.Create()
