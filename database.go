@@ -2,6 +2,7 @@ package database
 
 import (
 	"github.com/ghthor/database/action"
+	"github.com/ghthor/database/config"
 	"github.com/ziutek/mymysql/mysql"
 	_ "github.com/ziutek/mymysql/thrsafe"
 	"net/http"
@@ -16,19 +17,19 @@ type Executor interface {
 	ExecuteWith(action.A) (interface{}, error)
 }
 
-func New(user, passwd, database, filepath string) (Db, error) {
-	conn := mysql.New("tcp", "", "127.0.0.1:3306", user, passwd, database)
+func New(cfg config.Config) (Db, error) {
+	conn := mysql.New("tcp", "", "127.0.0.1:3306", cfg.Username, cfg.Password, cfg.DefaultDB)
 	err := conn.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	mysqlDb, err := NewMysqlDatabase(database, conn)
+	mysqlDb, err := NewMysqlDatabase(cfg.DefaultDB, conn)
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := NewDatabase(mysqlDb, filepath)
+	db, err := NewDatabase(mysqlDb, cfg.FileSystemDB)
 	if err != nil {
 		return nil, err
 	}
