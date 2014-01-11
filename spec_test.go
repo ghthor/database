@@ -23,6 +23,7 @@ func TestIntegrationSpecs(t *testing.T) {
 	r := gospec.NewRunner()
 
 	r.AddSpec(DescribeDatabaseIntegration)
+	r.AddSpec(DescribeMysqlDatabaseIntegration)
 
 	gospec.MainGoTest(r, t)
 }
