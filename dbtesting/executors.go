@@ -50,6 +50,12 @@ func (c *ExecutorContext) SpecifySideEffects(description string, expectations fu
 }
 
 func DescribeExecutor(c gospec.Context, input action.A, e ExecutorDescription, cfg config.Config, schema string, beforeClose func()) {
+	c.Specify(fmt.Sprintf("the [%s] action should be executed by [%s] and", reflect.TypeOf(input), reflect.TypeOf(e)), func() {
+		describeExecutor(c, input, e, cfg, schema, beforeClose)
+	})
+}
+
+func describeExecutor(c gospec.Context, input action.A, e ExecutorDescription, cfg config.Config, schema string, beforeClose func()) {
 	conn := mysql.New("tcp", "", "127.0.0.1:3306", cfg.Username, cfg.Password)
 	c.Assume(conn.Connect(), IsNil)
 

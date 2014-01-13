@@ -59,7 +59,7 @@ func DescribeSpecifyExecutor(c gospec.Context) {
 
 		var databaseWasDeleted bool
 
-		DescribeExecutor(c, MockAction{}, executor, cfg, string(schemaBytes), func() {
+		describeExecutor(c, MockAction{}, executor, cfg, string(schemaBytes), func() {
 			exists, err := executor.c.Db.MysqlDatabase().Exists()
 			c.Assume(err, IsNil)
 
