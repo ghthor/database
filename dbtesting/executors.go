@@ -27,18 +27,19 @@ type ExecutorContext struct {
 	Impl  database.Executor
 
 	Res interface{}
+	Err error
 }
 
 func (c *ExecutorContext) Run() {
-	res, err := c.Impl.ExecuteWith(c.Input)
-	c.Assume(err, IsNil)
-	c.Res = res
+	c.Res, c.Err = c.Impl.ExecuteWith(c.Input)
+
 }
 
 func (c *ExecutorContext) SpecifyResult(expectedResult interface{}) {
 	c.Specify(fmt.Sprintf("should return a [%s]", reflect.ValueOf(expectedResult).Type()), func() {
 		c.Run()
 		c.Expect(c.Res, Equals, expectedResult)
+		c.Expect(c.Err, IsNil)
 	})
 }
 
